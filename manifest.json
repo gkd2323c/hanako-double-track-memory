@@ -1,0 +1,118 @@
+{
+  "id": "hanako-double-track-memory",
+  "name": "Hanako Double-Track Memory",
+  "version": "0.1.0",
+  "description": "双轨长期记忆召回:按时间从 continuous-presence 捞,按关键词+importance 从 facts.db 捞,LLM 自主决定互证或并行。",
+  "trust": "restricted",
+  "activationEvents": ["onStartup"],
+  "contributes": {
+    "configuration": {
+      "properties": {
+        "default_timeline_limit": {
+          "type": "number",
+          "default": 8,
+          "title": "timeline_recall 默认 limit",
+          "description": "timeline_recall 工具默认返回的最多条数,LLM 可在调用时覆盖"
+        },
+        "default_ap_limit": {
+          "type": "number",
+          "default": 8,
+          "title": "ap_recall 默认 limit"
+        },
+        "default_importance_min": {
+          "type": "number",
+          "default": 4,
+          "title": "ap_recall 默认 importance 阈值 (0-10)"
+        },
+        "facts_db_path": {
+          "type": "string",
+          "default": "${HANA_HOME}/memory/facts.db",
+          "title": "facts.db 路径(留空用默认)",
+          "description": "如果 Hana 安装在非标准路径,可在此覆盖"
+        },
+        "enable_call_logging": {
+          "type": "boolean",
+          "default": true,
+          "title": "启用调用日志(calls.jsonl)"
+        }
+      }
+    }
+  },
+  "dev": {
+    "scenarios": [
+      {
+        "id": "timeline-recall-basic",
+        "description": "基本 timeline 召回, 3 天内 + 单关键词",
+        "steps": [
+          {
+            "invokeTool": {
+              "name": "timeline_recall",
+              "input": {
+                "days_ago": 3,
+                "clues": ["AP 论文"],
+                "limit": 5
+              }
+            }
+          },
+          {
+            "expectToolText": "召回"
+          }
+        ]
+      },
+      {
+        "id": "ap-recall-basic",
+        "description": "基本 ap 召回, importance >= 5",
+        "steps": [
+          {
+            "invokeTool": {
+              "name": "ap_recall",
+              "input": {
+                "keywords": ["AP 论文", "PsyArch"],
+                "importance_min": 5,
+                "limit": 5
+              }
+            }
+          },
+          {
+            "expectToolText": "召回"
+          }
+        ]
+      },
+      {
+        "id": "ap-recall-empty-keywords",
+        "description": "ap_recall 空 keywords 应被拒绝",
+        "steps": [
+          {
+            "invokeTool": {
+              "name": "ap_recall",
+              "input": {
+                "keywords": [],
+                "importance_min": 4
+              }
+            }
+          },
+          {
+            "expectToolText": "keywords_required"
+          }
+        ]
+      },
+      {
+        "id": "timeline-recall-no-time",
+        "description": "timeline_recall 无时间参数应被拒绝",
+        "steps": [
+          {
+            "invokeTool": {
+              "name": "timeline_recall",
+              "input": {
+                "clues": ["AP 论文"]
+              }
+            }
+          },
+          {
+            "expectToolText": "time_window_required"
+          }
+        ]
+      }
+    ]
+  }
+}

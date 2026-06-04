@@ -1,0 +1,13 @@
+{
+  "name": "hanako-double-track-memory",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "description": "双轨长期记忆召回：按时间从 continuous-presence 捞，按关键词从 facts.db 捞，LLM 自主决定互证或并行。",
+  "dependencies": {
+    "better-sqlite3": "*"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
