@@ -3,7 +3,7 @@
   "name": "Hanako Double-Track Memory",
   "version": "0.1.0",
   "description": "双轨长期记忆召回:按时间从 continuous-presence 捞,按关键词+importance 从 facts.db 捞,LLM 自主决定互证或并行。",
-  "trust": "restricted",
+  "trust": "full-access",
   "activationEvents": ["onStartup"],
   "contributes": {
     "configuration": {
